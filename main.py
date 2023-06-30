@@ -1,40 +1,42 @@
+import cmd
+import os
 import sys
 from datetime import datetime as dt
 
 
 class Account:
-    saldo = 0.0
-    LIMITE = 500
-    historico = {}
-    numero_saques = 0
-    LIMITE_SAQUES = 3
+    balance = 0.0
+    number_of_withdrawals = 0
+    LIMIT_WITHDRAWALS = 3
+    LIMIT = 500
+    statement = {}
 
 
 def start():
 
     while True:
 
-        operacao = int(input(imprime_menu()))
+        operation = int(input(show_menu()))
 
-        match operacao:
+        match operation:
             case 1:
-                sacar()
+                draw()
 
             case 2:
-                depositar()
+                deposit()
 
             case 3:
-                imprimir_extrato()
+                show_extract()
 
             case 4:
-                print('Obrigado pela preferencia!')
+                print('\tObrigado pela preferencia!')
                 sys.exit()
 
             case _:
-                print('Operação inválida, escolha uma da lista!')
+                print('\tOperação inválida, escolha uma da lista!')
 
 
-def imprime_menu() -> str:
+def show_menu() -> str:
     menu = '''
             Olá, o que você deseja fazer?
 
@@ -47,47 +49,59 @@ def imprime_menu() -> str:
     return menu
 
 
-def sacar():
-    dentro_limite = True
-    while dentro_limite:
-        valor = float(input('Qual valor deseja sacar?\n'))
+def draw():
+    cls()
+    is_limit = True
+    while is_limit:
+        value = float(input('\tQual valor deseja sacar?\n'))
+        cls()
 
-        if valor <= Account.saldo:
-            if valor <= Account.LIMITE:
-                if Account.numero_saques < Account.LIMITE_SAQUES:
+        if value <= Account.balance:
+            if value <= Account.LIMIT:
+                if Account.number_of_withdrawals < Account.LIMIT_WITHDRAWALS:
                     current_time = dt.now()
-                    Account.historico.update({current_time: ['Saque: R$', valor]})
-                    Account.saldo -= valor
-                    imprimir_saldo()
-                    Account.numero_saques += 1
-                    dentro_limite = False
+                    Account.statement.update({current_time: ['Saque: R$', value]})
+                    Account.balance -= value
+                    show_balance()
+                    Account.number_of_withdrawals += 1
+                    is_limit = False
                 else:
-                    print("Número de saques diário excedido!")
+                    print("\tNúmero de saques diário excedido!")
                     break
             else:
-                print(f'Limite de R$ {Account.LIMITE} por saque, escolher valor menor.')
+                print(f'\tLimite de R$ {Account.LIMIT} por saque, escolher valor menor.')
         else:
-            print('Saldo insuficiente!')
-            imprimir_saldo()
-            dentro_limite = False
+            print('\tSaldo insuficiente!')
+            show_balance()
+            is_limit = False
 
 
-def depositar():
-    valor = float(input('Qual valor deseja depositar?\n'))
+def deposit():
+    cls()
+    value = float(input('\tQual valor deseja depositar?\n'))
+    cls()
     current_time = dt.now()
-    Account.historico.update({current_time: ['Deposito: R$', valor]})
-    Account.saldo += valor
-    imprimir_saldo()
+    Account.statement.update({current_time: ['Deposito: R$', value]})
+    Account.balance += value
+    show_balance()
 
 
-def imprimir_extrato():
-    for x, y in Account.historico.items():
-        print(x.strftime('%d/%m/%Y as %H:%M:%S'), '-', y[0], f'{y[1]:.2f}')
-    imprimir_saldo()
+def show_extract():
+    cls()
+    if len(Account.statement) == 0:
+        print('\tNão foram realizadas movimentações.')
+    else:
+        for x, y in Account.statement.items():
+            print(x.strftime('\t%d/%m/%Y as %H:%M:%S'), '\n\t', y[0], f'{y[1]:.2f}\n')
+        show_balance()
 
 
-def imprimir_saldo() -> None:
-    print(f'Seu saldo é de R$ {Account.saldo:.2f}')
+def show_balance() -> None:
+    print(f'\tSeu saldo é de R$ {Account.balance:.2f}\n')
+
+
+def cls():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 if __name__ == '__main__':
